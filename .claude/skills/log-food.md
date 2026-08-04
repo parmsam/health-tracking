@@ -27,7 +27,11 @@ Per `CLAUDE.md`'s calorie/macro estimation guidance: estimate `calories`, `prote
 
 Per `CLAUDE.md`'s Tagging convention: propose 1–3 lowercase-hyphenated tags for the core food item(s) (not every ingredient). Check `data/food/` for a prior entry naming the same food and reuse its exact tag spelling instead of coining a near-duplicate.
 
-### 5. Preview and confirm
+### 5. Estimate servings, but only for categories the user actually tracks
+
+Read the most recent file in `data/goals/` (highest date). If it has a non-empty `serving_targets` (e.g. `vegetables`, `fruits`, `dairy`, `whole-grains`), estimate how many servings of *each of those specific categories* this food contributes — e.g. "roasted broccoli" contributes to `vegetables`, "greek yogurt" to `dairy`. Skip categories the food doesn't touch; skip this step entirely if there's no `serving_targets` set or the food doesn't match any tracked category. Don't invent categories that aren't in the current goals — this is scoped to what the user actually set a target for.
+
+### 6. Preview and confirm
 
 Show a brief preview before writing:
 ```
@@ -36,10 +40,11 @@ Description: chicken burrito bowl (rice, black beans, salsa, chicken)
 Calories:    720
 Protein:     45g   Carbs: 80g   Fat: 22g
 Tags:        chicken, burrito-bowl
+Servings:    vegetables 0.5   (omit this line if no serving_targets are set, or none apply)
 ```
 Ask if anything needs correcting. Don't demand exact figures if the user doesn't have them — the estimate is the point.
 
-### 6. Write the entry
+### 7. Write the entry
 
 Today's date in `YYYY-MM-DD` format. Target file: `data/food/<YYYY-MM-DD>.md`.
 
@@ -58,12 +63,13 @@ Today's date in `YYYY-MM-DD` format. Target file: `data/food/<YYYY-MM-DD>.md`.
       fat_g: <fat_g>
       source: <archived-file-path>   # omit line if not from an archive
       tags: [<tag1>, <tag2>]
+      servings: [{ category: <category>, amount: <number> }]   # omit line if none apply
   ---
   ```
 - If the file already exists, read it, parse the frontmatter, **append** the new object to the existing `entries` array (don't touch prior entries), and rewrite the whole file.
 
 Use the current time in 24h `HH:MM` for `time` unless the user specifies otherwise.
 
-### 7. Confirm
+### 8. Confirm
 
-Briefly confirm what was logged and, if the user has set goals (`data/goals/targets.md` exists), optionally mention how the day's running total compares to `calories_target` so far.
+Briefly confirm what was logged and, if the user has goals set (a file exists under `data/goals/`), optionally mention how the day's running total compares to `calories_target` — and, if serving targets are set, how today's category totals compare too.

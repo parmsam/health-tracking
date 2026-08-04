@@ -16,6 +16,7 @@ const foodEntry = z.object({
   fat_g: z.number(),
   source: z.string().optional(), // path to an archived nutrition-label transcription, if any
   tags: z.array(z.string()).default([]), // lowercase-hyphenated, e.g. the core food item(s) — powers /tags/<tag>
+  servings: z.array(z.object({ category: z.string(), amount: z.number() })).default([]), // e.g. [{category: "vegetables", amount: 1}] — only for categories in current goals' serving_targets
 });
 
 const food = defineCollection({
@@ -90,6 +91,11 @@ const goals = defineCollection({
     weight_goal_lb: z.number().optional(),
     weight_goal_direction: z.enum(['lose', 'gain', 'maintain']).optional(),
     workout_frequency_target: z.number(),
+    // Open-ended, like tags — no fixed food-group enum. e.g. [{category: "vegetables", target: 4, unit: "servings"}]
+    serving_targets: z.array(z.object({ category: z.string(), target: z.number(), unit: z.string().default('servings') })).default([]),
+    // Also open-ended. category is matched against exercise entries' `tags` — no separate
+    // per-entry field needed, since this is a pure weekly count. e.g. [{category: "upper-body", target: 1}]
+    exercise_targets: z.array(z.object({ category: z.string(), target: z.number() })).default([]),
   }),
 });
 

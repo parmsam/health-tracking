@@ -16,6 +16,16 @@ export function dailyFoodTotals(entries: FoodEntry[]) {
   );
 }
 
+export function dailyServingTotals(entries: FoodEntry[]): Record<string, number> {
+  const totals: Record<string, number> = {};
+  for (const e of entries) {
+    for (const s of e.servings) {
+      totals[s.category] = (totals[s.category] ?? 0) + s.amount;
+    }
+  }
+  return totals;
+}
+
 export function sortByDateDesc<T extends { data: { date: Date } }>(days: T[]): T[] {
   return [...days].sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 }
@@ -57,6 +67,16 @@ export function thisWeekExerciseSessionCount(
   return days
     .filter(d => isWithinCurrentWeek(d.data.date, reference))
     .reduce((count, d) => count + d.data.entries.length, 0);
+}
+
+export function thisWeekExerciseCountByTag(
+  days: CollectionEntry<'exercise'>[],
+  category: string,
+  reference: Date = new Date()
+): number {
+  return days
+    .filter(d => isWithinCurrentWeek(d.data.date, reference))
+    .reduce((count, d) => count + d.data.entries.filter(e => e.tags.includes(category)).length, 0);
 }
 
 export function weightTrend(

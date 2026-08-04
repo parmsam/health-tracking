@@ -6,9 +6,11 @@ import StatTile from '../components/StatTile.astro';
 import WeightTrendChart from '../components/WeightTrendChart.astro';
 import {
   dailyFoodTotals,
+  dailyServingTotals,
   findDay,
   todayId,
   thisWeekExerciseSessionCount,
+  thisWeekExerciseCountByTag,
   weightTrend,
   sortByDateDesc,
 } from '../lib/aggregate';
@@ -23,6 +25,8 @@ const todayFood = findDay(foodDays, today);
 const totals = todayFood
   ? dailyFoodTotals(todayFood.data.entries)
   : { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 };
+const servingTotals = todayFood ? dailyServingTotals(todayFood.data.entries) : {};
+const titleCase = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 
 const workoutsThisWeek = thisWeekExerciseSessionCount(exerciseDays);
 const trend = weightTrend(checkinDays);
@@ -65,6 +69,22 @@ if (latestWeight && previousWeight) {
         <Meter label="Protein" value={totals.protein_g} target={goals.data.protein_g_target} unit="g" />
         <Meter label="Carbs" value={totals.carbs_g} target={goals.data.carbs_g_target} unit="g" />
         <Meter label="Fat" value={totals.fat_g} target={goals.data.fat_g_target} unit="g" />
+        {goals.data.serving_targets.map(st => (
+          <Meter
+            label={titleCase(st.category)}
+            value={servingTotals[st.category] ?? 0}
+            target={st.target}
+            unit={st.unit}
+          />
+        ))}
+        {goals.data.exercise_targets.map(et => (
+          <Meter
+            label={`${titleCase(et.category)} (this week)`}
+            value={thisWeekExerciseCountByTag(exerciseDays, et.category)}
+            target={et.target}
+            unit="sessions"
+          />
+        ))}
       </>
     ) : (
       <>

@@ -35,6 +35,7 @@ entries:
     fat_g: number
     source: string    # optional — path to an archived nutrition-label transcription, if this came from one
     tags: [string]     # lowercase-hyphenated, e.g. the core food item(s) — see Tagging below
+    servings: [{ category: string, amount: number }]   # e.g. [{category: vegetables, amount: 1}] — see Category goals below
 ```
 
 **Exercise** (`data/exercise/YYYY-MM-DD.md`)
@@ -79,6 +80,8 @@ fat_g_target: number
 weight_goal_lb: number             # optional
 weight_goal_direction: lose | gain | maintain   # optional
 workout_frequency_target: number   # workouts/week
+serving_targets: [{ category: string, target: number, unit: string }]   # optional — see Category goals below
+exercise_targets: [{ category: string, target: number }]                  # optional — see Category goals below
 ```
 
 ## Unit conventions
@@ -109,6 +112,15 @@ Every food and exercise entry has a `tags` array (default `[]`). Each tag gets i
 - **Food**: propose 1–3 tags for the core food item(s) in the description (e.g. "grilled salmon, roasted broccoli, quinoa" → `tags: [salmon, quinoa]` — pick what's identifiable and reusable, not every ingredient). Before inventing a new tag, check `data/food/` for a prior entry describing the same food and reuse its tag spelling — `grep -rl` for the food name across recent day files is enough, no need for anything fancier.
 - Tags are lowercase, hyphenated, no special characters — same slug rules as everywhere else in this file.
 - Show proposed tags in the log-food/log-exercise preview step so the user can edit them before confirming, same as any other field.
+
+## Category goals
+
+Beyond the fixed calorie/macro/weight/frequency targets, goals can include **open-ended category targets** — no fixed food-group or muscle-group enum, same philosophy as tags: the user names whatever categories matter to them (`vegetables`, `whole-grains`, `upper-body`, ...) and the system doesn't need a schema change to support a new one.
+
+- **`serving_targets`** (food): daily serving-count goals, e.g. "4 servings of vegetables, 2 of fruit." Each food entry that contributes gets a matching `servings: [{category, amount}]` entry (see `log-food`'s step 5) — a *separate* field from `tags`, because this is a magnitude ("how many") where tags are identity ("which one"). Only estimate servings for categories present in the **current** goals snapshot's `serving_targets` — don't track categories nobody asked for.
+- **`exercise_targets`** (exercise): weekly session-count goals per workout category, e.g. "1 upper-body and 1 lower-body strength session a week." These do **not** get a separate field — they're matched against exercise entries' existing `tags` array. `log-exercise` adds a category tag (e.g. `upper-body`) alongside the default exercise-name tag whenever a session matches a category in the current goals (see `log-exercise`'s step 3). Same "only tag what's tracked" rule.
+- Both are rendered as progress meters on the dashboard (today's total for `serving_targets`, this week's tagged count for `exercise_targets`) and summarized on the Goals page, current + history.
+- `unit` on `serving_targets` defaults to `servings` but isn't required to be — e.g. a user could target `oz` instead if they prefer a weight-based target for one category while keeping others serving-based.
 
 ## Archive convention
 

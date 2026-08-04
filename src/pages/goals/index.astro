@@ -9,6 +9,9 @@ const history = snapshots.slice(1);
 
 const dateFmt = (d: Date) =>
   d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+const titleCase = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+const summarize = (targets: { category: string; target: number }[]) =>
+  targets.length > 0 ? targets.map(t => `${titleCase(t.category)} ${t.target}`).join(', ') : '—';
 ---
 
 <Base title="Goals">
@@ -59,6 +62,18 @@ const dateFmt = (d: Date) =>
               </dd>
             </div>
           )}
+          {current.data.serving_targets.map(st => (
+            <div>
+              <dt class="text-stone-400 dark:text-stone-500 text-xs mb-0.5">{titleCase(st.category)}</dt>
+              <dd class="text-stone-900 dark:text-stone-100 tabular-nums">{st.target} {st.unit}/day</dd>
+            </div>
+          ))}
+          {current.data.exercise_targets.map(et => (
+            <div>
+              <dt class="text-stone-400 dark:text-stone-500 text-xs mb-0.5">{titleCase(et.category)}</dt>
+              <dd class="text-stone-900 dark:text-stone-100 tabular-nums">{et.target}/week</dd>
+            </div>
+          ))}
         </dl>
       </div>
 
@@ -76,6 +91,8 @@ const dateFmt = (d: Date) =>
                   <th class="px-4 py-2 font-medium">Fat</th>
                   <th class="px-4 py-2 font-medium">Workouts/wk</th>
                   <th class="px-4 py-2 font-medium">Weight goal</th>
+                  <th class="px-4 py-2 font-medium">Serving goals</th>
+                  <th class="px-4 py-2 font-medium">Exercise goals</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-stone-100 dark:divide-stone-800">
@@ -90,6 +107,8 @@ const dateFmt = (d: Date) =>
                     <td class="px-4 py-2 tabular-nums text-stone-700 dark:text-stone-300">
                       {s.data.weight_goal_lb !== undefined ? `${s.data.weight_goal_lb} lb` : '—'}
                     </td>
+                    <td class="px-4 py-2 text-stone-700 dark:text-stone-300">{summarize(s.data.serving_targets)}</td>
+                    <td class="px-4 py-2 text-stone-700 dark:text-stone-300">{summarize(s.data.exercise_targets)}</td>
                   </tr>
                 ))}
               </tbody>
