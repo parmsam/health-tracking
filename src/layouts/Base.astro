@@ -18,6 +18,9 @@ const pageTitle = title === 'Health Tracking' ? 'Health Tracking' : `${title} ·
 const rawBase = import.meta.env.BASE_URL;
 const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
 const containerClass = wide ? 'max-w-5xl' : 'max-w-3xl';
+// Set only by the CI build (see .github/workflows/deploy.yml) — never true for
+// a local `npm run dev`/`npm run build` against your own real data.
+const isDemoData = process.env.HEALTH_DATA_DIR === 'demo-data';
 ---
 
 <!doctype html>
@@ -80,6 +83,20 @@ const containerClass = wide ? 'max-w-5xl' : 'max-w-3xl';
         </div>
       </div>
     </header>
+
+    {isDemoData && (
+      <div class="border-b border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/40">
+        <div class={`${containerClass} mx-auto px-4 py-2 flex items-center gap-2 text-xs text-amber-800 dark:text-amber-300`}>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-3.5 h-3.5 flex-shrink-0">
+            <path fill-rule="evenodd" d="M8 15A7 7 0 108 1a7 7 0 000 14zM8 4a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 018 4zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+          </svg>
+          <span>
+            This is the public demo — everything shown here is synthetic sample data, not anyone's real logs.
+            <a href="https://github.com/parmsam/health-tracking" class="underline underline-offset-2 hover:text-amber-900 dark:hover:text-amber-200 transition-colors">Set up your own instance</a>.
+          </span>
+        </div>
+      </div>
+    )}
 
     <main class={`${containerClass} mx-auto px-4 py-10`}>
       <slot />
