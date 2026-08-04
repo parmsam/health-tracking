@@ -43,6 +43,18 @@ npm run dev        # http://localhost:4321
 
 That's it — no database, no accounts, no API keys. Everything lives in `data/` on your machine.
 
+## Running on your local network
+
+If you want the dashboard reachable from another device (your phone, say) while it runs in the background on one machine, use the start/stop script instead of `npm run dev`:
+
+```bash
+npm run dev:start    # starts in the background, bound to your LAN, prints both URLs
+npm run dev:status    # is it running, and at what address
+npm run dev:stop      # stops it
+```
+
+This runs `astro dev` (not a static build) so entries logged via Claude Code show up on refresh without a rebuild. It writes a PID file (`.server.pid`) and log (`.server.log`) in the project root — both gitignored — so `dev:stop` can reliably kill the right process. `dev:start` refuses to start a second instance if one's already running.
+
 ## Skills
 
 - **`/log-food <description>`** — logs a meal; Claude estimates calories/protein/carbs/fat from what you describe.
@@ -89,4 +101,7 @@ npm run dev        # dev server at localhost:4321, reads data/
 npm run build       # production build, reads data/ locally or demo-data/ in CI
 npm run preview     # preview the built dist/
 npm run check       # typecheck with astro check
+npm run dev:start   # foreground dev, but backgrounded + bound to your LAN (see above)
+npm run dev:stop
+npm run dev:status
 ```
