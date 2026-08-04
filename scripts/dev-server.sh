@@ -10,6 +10,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 PID_FILE=".server.pid"
 LOG_FILE=".server.log"
 PORT="${PORT:-4321}"
+BASE_PATH="/health-tracking" # keep in sync with `base` in astro.config.mjs
 
 lan_ip() {
   ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || echo "<your-lan-ip>"
@@ -31,8 +32,8 @@ start() {
   sleep 1
   if is_running; then
     echo "Started (PID $(cat "$PID_FILE")). Logs: $LOG_FILE"
-    echo "  Local:   http://localhost:$PORT"
-    echo "  Network: http://$(lan_ip):$PORT"
+    echo "  Local:   http://localhost:$PORT$BASE_PATH"
+    echo "  Network: http://$(lan_ip):$PORT$BASE_PATH"
   else
     echo "Failed to start — check $LOG_FILE"
     rm -f "$PID_FILE"
@@ -58,8 +59,8 @@ stop() {
 status() {
   if is_running; then
     echo "Running (PID $(cat "$PID_FILE"))."
-    echo "  Local:   http://localhost:$PORT"
-    echo "  Network: http://$(lan_ip):$PORT"
+    echo "  Local:   http://localhost:$PORT$BASE_PATH"
+    echo "  Network: http://$(lan_ip):$PORT$BASE_PATH"
   else
     echo "Not running."
   fi
