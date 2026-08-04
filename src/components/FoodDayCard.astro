@@ -3,6 +3,7 @@ import type { CollectionEntry } from 'astro:content';
 import { dailyFoodTotals, sortEntriesByTime, entryAnchorId } from '../lib/aggregate';
 import { withBase } from '../lib/url';
 import TagPill from './TagPill.astro';
+import CopyLinkButton from './CopyLinkButton.astro';
 
 interface Props {
   day: CollectionEntry<'food'>;
@@ -37,7 +38,7 @@ const mealLabel: Record<string, string> = {
     {entries.map(e => (
       <div
         id={entryAnchorId(day.id, e.time)}
-        class="px-4 py-2.5 flex items-start gap-3 scroll-mt-20 target:bg-amber-50 dark:target:bg-amber-950/30 transition-colors"
+        class="group px-4 py-2.5 flex items-start gap-3 scroll-mt-20 target:bg-amber-50 dark:target:bg-amber-950/30 transition-colors"
       >
         <span class="flex-shrink-0 w-14 text-xs text-stone-400 dark:text-stone-500 tabular-nums pt-0.5">{e.time}</span>
         <div class="flex-1 min-w-0">
@@ -52,6 +53,7 @@ const mealLabel: Record<string, string> = {
           )}
         </div>
         <span class="flex-shrink-0 text-xs text-stone-400 dark:text-stone-500 tabular-nums pt-0.5">{e.calories} cal</span>
+        <CopyLinkButton href={withBase(`food#${entryAnchorId(day.id, e.time)}`)} label="Copy link to this meal" />
       </div>
     ))}
   </div>
