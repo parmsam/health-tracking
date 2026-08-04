@@ -1,0 +1,25 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import FoodDayCard from '../../components/FoodDayCard.astro';
+import { sortByDateDesc } from '../../lib/aggregate';
+
+const days = sortByDateDesc(await getCollection('food'));
+---
+
+<Base title="Food">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-stone-900 dark:text-stone-100 mb-1">Food</h1>
+    <p class="text-stone-400 text-sm">Daily food log, most recent first.</p>
+  </div>
+
+  {days.length === 0 ? (
+    <p class="text-sm text-stone-400 dark:text-stone-500">
+      No food logged yet. Try
+      <code class="px-1 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300">/log-food</code>
+      in Claude Code.
+    </p>
+  ) : (
+    days.map(day => <FoodDayCard day={day} />)
+  )}
+</Base>

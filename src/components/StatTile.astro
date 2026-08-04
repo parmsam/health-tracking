@@ -1,0 +1,20 @@
+---
+// A single current value (+ maybe a delta) — not a ratio against a limit, so no bar/meter.
+interface Props {
+  label: string;
+  value: string;
+  delta?: { text: string; good: boolean };
+}
+
+const { label, value, delta } = Astro.props;
+---
+
+<div class="viz-root">
+  <p class="text-sm text-[var(--text-secondary)] mb-1">{label}</p>
+  <p class="text-3xl font-semibold text-[var(--text-primary)]">{value}</p>
+  {delta && (
+    <p class="mt-1 text-xs" style={`color: ${delta.good ? 'var(--status-good)' : 'var(--text-muted)'}`}>
+      {delta.text}
+    </p>
+  )}
+</div>

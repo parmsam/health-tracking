@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+/* class-based dark mode — toggled on <html> */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* dataviz palette — see dataviz skill references/palette.md.
+   Sequential hue: blue (the palette's documented default). Status: warning (amber). */
+@layer base {
+  .viz-root {
+    color-scheme: light;
+    --surface-1: #fcfcfb;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted: #898781;
+    --gridline: #e1e0d9;
+    --baseline: #c3c2b7;
+    --border: rgba(11, 11, 11, 0.1);
+    --meter-track: #cde2fb; /* sequential step 100 */
+    --meter-fill: #2a78d6; /* sequential step 450 */
+    --status-warning: #fab219;
+    --status-good: #006300;
+  }
+
+  .dark .viz-root {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --gridline: #2c2c2a;
+    --baseline: #383835;
+    --border: rgba(255, 255, 255, 0.1);
+    --meter-track: #104281; /* sequential step 650, recessive on dark surface */
+    --meter-fill: #3987e5; /* categorical slot 1, dark step */
+    --status-warning: #fab219;
+    --status-good: #0ca30c;
+  }
+}

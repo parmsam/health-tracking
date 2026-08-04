@@ -1,0 +1,48 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { dailyFoodTotals, sortEntriesByTime } from '../lib/aggregate';
+
+interface Props {
+  day: CollectionEntry<'food'>;
+}
+
+const { day } = Astro.props;
+const entries = sortEntriesByTime(day.data.entries);
+const totals = dailyFoodTotals(day.data.entries);
+const dateStr = day.data.date.toLocaleDateString('en-US', {
+  weekday: 'short',
+  month: 'short',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+
+const mealLabel: Record<string, string> = {
+  breakfast: 'Breakfast',
+  lunch: 'Lunch',
+  dinner: 'Dinner',
+  snack: 'Snack',
+};
+---
+
+<article class="mb-6 rounded-lg border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 overflow-hidden">
+  <div class="flex items-center justify-between px-4 py-3 border-b border-stone-100 dark:border-stone-800">
+    <h2 class="font-medium text-stone-900 dark:text-stone-100">{dateStr}</h2>
+    <span class="text-xs text-stone-400 dark:text-stone-500 tabular-nums">
+      {Math.round(totals.calories).toLocaleString('en-US')} cal · {Math.round(totals.protein_g)}p / {Math.round(totals.carbs_g)}c / {Math.round(totals.fat_g)}f
+    </span>
+  </div>
+  <div class="divide-y divide-stone-100 dark:divide-stone-800">
+    {entries.map(e => (
+      <div class="px-4 py-2.5 flex items-start gap-3">
+        <span class="flex-shrink-0 w-14 text-xs text-stone-400 dark:text-stone-500 tabular-nums pt-0.5">{e.time}</span>
+        <div class="flex-1 min-w-0">
+          <span class="inline-block mb-0.5 px-1.5 py-0.5 rounded text-xs font-medium bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400">
+            {mealLabel[e.meal]}
+          </span>
+          <p class="text-sm text-stone-700 dark:text-stone-300">{e.description}</p>
+        </div>
+        <span class="flex-shrink-0 text-xs text-stone-400 dark:text-stone-500 tabular-nums pt-0.5">{e.calories} cal</span>
+      </div>
+    ))}
+  </div>
+</article>

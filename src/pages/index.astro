@@ -1,0 +1,78 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Meter from '../components/Meter.astro';
+import StatTile from '../components/StatTile.astro';
+import WeightTrendChart from '../components/WeightTrendChart.astro';
+import {
+  dailyFoodTotals,
+  findDay,
+  todayId,
+  thisWeekExerciseSessionCount,
+  weightTrend,
+} from '../lib/aggregate';
+
+const foodDays = await getCollection('food');
+const exerciseDays = await getCollection('exercise');
+const checkinDays = await getCollection('checkins');
+const goals = await getEntry('goals', 'targets');
+
+const today = todayId();
+const todayFood = findDay(foodDays, today);
+const totals = todayFood
+  ? dailyFoodTotals(todayFood.data.entries)
+  : { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 };
+
+const workoutsThisWeek = thisWeekExerciseSessionCount(exerciseDays);
+const trend = weightTrend(checkinDays);
+const latestWeight = trend[trend.length - 1];
+const previousWeight = trend[trend.length - 2];
+
+let weightDelta: { text: string; good: boolean } | undefined;
+if (latestWeight && previousWeight) {
+  const diff = latestWeight.weight_lb - previousWeight.weight_lb;
+  const direction = goals?.data.weight_goal_direction;
+  const good = direction === 'lose' ? diff <= 0 : direction === 'gain' ? diff >= 0 : true;
+  weightDelta = { text: `${diff >= 0 ? '+' : ''}${diff.toFixed(1)} lb vs last check-in`, good };
+}
+---
+
+<Base title="Dashboard" wide>
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-stone-900 dark:text-stone-100 mb-1">Dashboard</h1>
+    <p class="text-stone-400 text-sm">Today's progress and recent trends.</p>
+  </div>
+
+  {!goals && (
+    <div class="mb-8 rounded-lg border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-4 text-sm text-stone-500 dark:text-stone-400">
+      No goals set yet. Run
+      <code class="px-1 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300">/set-goals</code>
+      in Claude Code to define your targets.
+    </div>
+  )}
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 mb-10">
+    {goals ? (
+      <>
+        <Meter label="Calories" value={totals.calories} target={goals.data.calories_target} unit="cal" />
+        <Meter
+          label="Workouts this week"
+          value={workoutsThisWeek}
+          target={goals.data.workout_frequency_target}
+          unit="workouts"
+        />
+        <Meter label="Protein" value={totals.protein_g} target={goals.data.protein_g_target} unit="g" />
+        <Meter label="Carbs" value={totals.carbs_g} target={goals.data.carbs_g_target} unit="g" />
+        <Meter label="Fat" value={totals.fat_g} target={goals.data.fat_g_target} unit="g" />
+      </>
+    ) : (
+      <>
+        <StatTile label="Calories today" value={totals.calories.toLocaleString('en-US')} />
+        <StatTile label="Workouts this week" value={String(workoutsThisWeek)} />
+      </>
+    )}
+    {latestWeight && <StatTile label="Latest weight" value={`${latestWeight.weight_lb} lb`} delta={weightDelta} />}
+  </div>
+
+  <WeightTrendChart points={trend} />
+</Base>

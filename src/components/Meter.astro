@@ -1,0 +1,38 @@
+---
+// A single ratio against a limit (calories/macros vs target, workouts vs frequency goal).
+// Per the dataviz skill's form heuristic: "a single ratio against a limit → Meter."
+interface Props {
+  label: string;
+  value: number;
+  target: number;
+  unit: string;
+}
+
+const { label, value, target, unit } = Astro.props;
+const pct = target > 0 ? Math.min(value / target, 1) * 100 : 0;
+const overTarget = target > 0 && value > target;
+const fmt = (n: number) => Math.round(n).toLocaleString('en-US');
+---
+
+<div class="viz-root">
+  <div class="flex items-baseline justify-between mb-1.5 gap-2">
+    <span class="text-sm text-[var(--text-secondary)]">{label}</span>
+    <span class="text-sm text-[var(--text-primary)]" title={`${fmt(value)} of ${fmt(target)} ${unit}`}>
+      {fmt(value)} <span class="text-[var(--text-muted)]">/ {fmt(target)} {unit}</span>
+    </span>
+  </div>
+  <div class="h-2 rounded-full" style="background: var(--meter-track)">
+    <div
+      class="h-2 rounded-full"
+      style={`width: ${pct}%; background: ${overTarget ? 'var(--status-warning)' : 'var(--meter-fill)'}`}
+    ></div>
+  </div>
+  {overTarget && (
+    <p class="mt-1 text-xs flex items-center gap-1" style="color: var(--status-warning)">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-3 h-3">
+        <path fill-rule="evenodd" d="M8 1a.75.75 0 01.671.415l6.5 13A.75.75 0 0114.5 15.5h-13a.75.75 0 01-.671-1.085l6.5-13A.75.75 0 018 1zm0 4a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 018 5zm0 7a.75.75 0 100 1.5.75.75 0 000-1.5z" clip-rule="evenodd"/>
+      </svg>
+      over target
+    </p>
+  )}
+</div>

@@ -1,0 +1,59 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { sortEntriesByTime } from '../lib/aggregate';
+
+interface Props {
+  day: CollectionEntry<'exercise'>;
+}
+
+const { day } = Astro.props;
+const entries = sortEntriesByTime(day.data.entries);
+const dateStr = day.data.date.toLocaleDateString('en-US', {
+  weekday: 'short',
+  month: 'short',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+---
+
+<article class="mb-6 rounded-lg border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 overflow-hidden">
+  <div class="px-4 py-3 border-b border-stone-100 dark:border-stone-800">
+    <h2 class="font-medium text-stone-900 dark:text-stone-100">{dateStr}</h2>
+  </div>
+  <div class="divide-y divide-stone-100 dark:divide-stone-800">
+    {entries.map(e => (
+      <div class="px-4 py-2.5 flex items-start gap-3">
+        <span class="flex-shrink-0 w-14 text-xs text-stone-400 dark:text-stone-500 tabular-nums pt-0.5">{e.time}</span>
+        <div class="flex-1 min-w-0">
+          <span
+            class={`inline-block mb-0.5 px-1.5 py-0.5 rounded text-xs font-medium ${
+              e.type === 'strength'
+                ? 'bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400'
+                : 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400'
+            }`}
+          >
+            {e.type === 'strength' ? 'Strength' : 'Cardio'}
+          </span>
+          {e.type === 'strength' ? (
+            <>
+              <p class="text-sm text-stone-700 dark:text-stone-300">{e.exercise}</p>
+              <p class="text-xs text-stone-400 dark:text-stone-500 tabular-nums">
+                {e.sets.map(s => `${s.weight_lb} lb x${s.reps}`).join(', ')}
+              </p>
+            </>
+          ) : (
+            <>
+              <p class="text-sm text-stone-700 dark:text-stone-300">{e.activity}</p>
+              <p class="text-xs text-stone-400 dark:text-stone-500 tabular-nums">
+                {e.duration_min} min
+                {e.distance_mi !== undefined ? ` · ${e.distance_mi} mi` : ''}
+                {e.pace_min_per_mi !== undefined ? ` · ${e.pace_min_per_mi.toFixed(2)}/mi` : ''}
+              </p>
+            </>
+          )}
+          {e.notes && <p class="text-xs text-stone-400 dark:text-stone-500 mt-1 italic">{e.notes}</p>}
+        </div>
+      </div>
+    ))}
+  </div>
+</article>

@@ -1,0 +1,10 @@
+---
+calories_target: 2200
+protein_g_target: 160
+carbs_g_target: 220
+fat_g_target: 70
+weight_goal_lb: 175
+weight_goal_direction: lose
+workout_frequency_target: 4
+updated: 2026-07-01
+---
