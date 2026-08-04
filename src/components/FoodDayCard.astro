@@ -1,6 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { dailyFoodTotals, sortEntriesByTime } from '../lib/aggregate';
+import { dailyFoodTotals, sortEntriesByTime, entryAnchorId } from '../lib/aggregate';
 import { withBase } from '../lib/url';
 import TagPill from './TagPill.astro';
 
@@ -35,7 +35,10 @@ const mealLabel: Record<string, string> = {
   </div>
   <div class="divide-y divide-stone-100 dark:divide-stone-800">
     {entries.map(e => (
-      <div class="px-4 py-2.5 flex items-start gap-3">
+      <div
+        id={entryAnchorId(day.id, e.time)}
+        class="px-4 py-2.5 flex items-start gap-3 scroll-mt-20 target:bg-amber-50 dark:target:bg-amber-950/30 transition-colors"
+      >
         <span class="flex-shrink-0 w-14 text-xs text-stone-400 dark:text-stone-500 tabular-nums pt-0.5">{e.time}</span>
         <div class="flex-1 min-w-0">
           <span class="inline-block mb-0.5 px-1.5 py-0.5 rounded text-xs font-medium bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400">

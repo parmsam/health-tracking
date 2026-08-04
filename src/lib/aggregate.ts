@@ -91,12 +91,20 @@ export function weightTrend(
     .reverse(); // chronological order for charting
 }
 
-// Flatten day-files into individual entries paired with their day's date —
-// the shape /tags/[tag] needs to filter across every logged occurrence.
-export function flattenByDate<TDay extends { data: { date: Date; entries: unknown[] } }>(
+// Flatten day-files into individual entries paired with their day's date/id —
+// the shape /tags/[tag] needs to filter across every logged occurrence and
+// link back to each entry's record.
+export function flattenByDate<TDay extends { id: string; data: { date: Date; entries: unknown[] } }>(
   days: TDay[]
-): { date: Date; entry: TDay['data']['entries'][number] }[] {
-  return days.flatMap(day => day.data.entries.map(entry => ({ date: day.data.date, entry })));
+): { date: Date; dayId: string; entry: TDay['data']['entries'][number] }[] {
+  return days.flatMap(day => day.data.entries.map(entry => ({ date: day.data.date, dayId: day.id, entry })));
+}
+
+// Stable per-entry anchor id, shared by the day cards (which set it) and the
+// tag page (which links to it) — derived from data, not array position, so
+// it doesn't depend on the two places sorting entries the same way.
+export function entryAnchorId(dayId: string, time: string): string {
+  return `entry-${dayId}-${time.replace(':', '')}`;
 }
 
 export function allTags(flatEntries: { entry: { tags: string[] } }[][]): string[] {

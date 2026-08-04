@@ -1,0 +1,52 @@
+---
+// Type-to-jump: pick (or type an exact match for) a tag and land on /tags/<tag>.
+// Complements the pill cloud, which is for browsing — this is for when you
+// already know the name and don't want to hunt through pills for it.
+import { withBase } from '../lib/url';
+
+interface Props {
+  tags: string[];
+}
+
+const { tags } = Astro.props;
+const tagsBase = withBase('tags/');
+---
+
+<form id="tag-search-form" class="mb-4 max-w-xs">
+  <label for="tag-search-input" class="sr-only">Jump to a tag</label>
+  <input
+    id="tag-search-input"
+    type="text"
+    list="tag-search-list"
+    placeholder="Jump to a tag…"
+    autocomplete="off"
+    class="w-full px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 text-sm text-stone-700 dark:text-stone-300 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+  />
+  <datalist id="tag-search-list">
+    {tags.map(tag => <option value={tag} />)}
+  </datalist>
+</form>
+
+<script is:inline define:vars={{ tagsBase, tags }}>
+  (function () {
+    var form = document.getElementById('tag-search-form');
+    var input = document.getElementById('tag-search-input');
+    var known = tags.map(function (t) {
+      return t.toLowerCase();
+    });
+
+    function jump() {
+      var val = input.value.trim().toLowerCase();
+      if (known.indexOf(val) !== -1) {
+        window.location.href = tagsBase + encodeURIComponent(val);
+      }
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      jump();
+    });
+    // Fires when a datalist option is picked, and on blur after typing.
+    input.addEventListener('change', jump);
+  })();
+</script>

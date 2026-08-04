@@ -1,6 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { sortEntriesByTime } from '../lib/aggregate';
+import { sortEntriesByTime, entryAnchorId } from '../lib/aggregate';
 import { withBase } from '../lib/url';
 import TagPill from './TagPill.astro';
 
@@ -24,7 +24,10 @@ const dateStr = day.data.date.toLocaleDateString('en-US', {
   </div>
   <div class="divide-y divide-stone-100 dark:divide-stone-800">
     {entries.map(e => (
-      <div class="px-4 py-2.5 flex items-start gap-3">
+      <div
+        id={entryAnchorId(day.id, e.time)}
+        class="px-4 py-2.5 flex items-start gap-3 scroll-mt-20 target:bg-amber-50 dark:target:bg-amber-950/30 transition-colors"
+      >
         <span class="flex-shrink-0 w-14 text-xs text-stone-400 dark:text-stone-500 tabular-nums pt-0.5">{e.time}</span>
         <div class="flex-1 min-w-0">
           <span
