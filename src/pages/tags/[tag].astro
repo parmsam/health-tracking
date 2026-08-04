@@ -1,0 +1,85 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { flattenByDate, allTags } from '../../lib/aggregate';
+
+export async function getStaticPaths() {
+  const foodDays = await getCollection('food');
+  const exerciseDays = await getCollection('exercise');
+  const foodFlat = flattenByDate(foodDays);
+  const exerciseFlat = flattenByDate(exerciseDays);
+
+  const tags = allTags([foodFlat, exerciseFlat]);
+
+  return tags.map(tag => ({
+    params: { tag },
+    props: {
+      food: foodFlat
+        .filter(f => f.entry.tags.includes(tag))
+        .sort((a, b) => b.date.getTime() - a.date.getTime()),
+      exercise: exerciseFlat
+        .filter(e => e.entry.tags.includes(tag))
+        .sort((a, b) => b.date.getTime() - a.date.getTime()),
+    },
+  }));
+}
+
+const { tag } = Astro.params;
+const { food, exercise } = Astro.props;
+const total = food.length + exercise.length;
+
+const dateFmt = (d: Date) =>
+  d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+---
+
+<Base title={`#${tag}`}>
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-stone-900 dark:text-stone-100 mb-1">#{tag}</h1>
+    <p class="text-stone-400 text-sm">{total} {total === 1 ? 'entry' : 'entries'}, most recent first</p>
+  </div>
+
+  {food.length > 0 && (
+    <section class="mb-10">
+      <h2 class="text-xs font-semibold text-stone-400 uppercase tracking-widest mb-4">Food</h2>
+      <div class="rounded-lg border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 overflow-hidden divide-y divide-stone-100 dark:divide-stone-800">
+        {food.map(({ date, entry }) => (
+          <div class="px-4 py-2.5 flex items-start gap-3">
+            <span class="flex-shrink-0 w-24 text-xs text-stone-400 dark:text-stone-500 tabular-nums pt-0.5">{dateFmt(date)}</span>
+            <p class="flex-1 min-w-0 text-sm text-stone-700 dark:text-stone-300">{entry.description}</p>
+            <span class="flex-shrink-0 text-xs text-stone-400 dark:text-stone-500 tabular-nums pt-0.5">{entry.calories} cal</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+
+  {exercise.length > 0 && (
+    <section class="mb-10">
+      <h2 class="text-xs font-semibold text-stone-400 uppercase tracking-widest mb-4">Exercise</h2>
+      <div class="rounded-lg border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 overflow-hidden divide-y divide-stone-100 dark:divide-stone-800">
+        {exercise.map(({ date, entry }) => (
+          <div class="px-4 py-2.5 flex items-start gap-3">
+            <span class="flex-shrink-0 w-24 text-xs text-stone-400 dark:text-stone-500 tabular-nums pt-0.5">{dateFmt(date)}</span>
+            <div class="flex-1 min-w-0">
+              {entry.type === 'strength' ? (
+                <>
+                  <p class="text-sm text-stone-700 dark:text-stone-300">{entry.exercise}</p>
+                  <p class="text-xs text-stone-400 dark:text-stone-500 tabular-nums">
+                    {entry.sets.map(s => `${s.weight_lb} lb x${s.reps}`).join(', ')}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p class="text-sm text-stone-700 dark:text-stone-300">{entry.activity}</p>
+                  <p class="text-xs text-stone-400 dark:text-stone-500 tabular-nums">
+                    {entry.duration_min} min{entry.distance_mi !== undefined ? ` · ${entry.distance_mi} mi` : ''}
+                  </p>
+                </>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+</Base>

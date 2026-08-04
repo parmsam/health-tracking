@@ -34,6 +34,7 @@ entries:
     carbs_g: number
     fat_g: number
     source: string    # optional — path to an archived nutrition-label transcription, if this came from one
+    tags: [string]     # lowercase-hyphenated, e.g. the core food item(s) — see Tagging below
 ```
 
 **Exercise** (`data/exercise/YYYY-MM-DD.md`)
@@ -46,6 +47,7 @@ entries:
     exercise: string
     sets: [{ reps: number, weight_lb: number }]
     notes: string     # optional
+    tags: [string]     # lowercase-hyphenated, e.g. the slugified exercise name
   # cardio
   - type: cardio
     time: "HH:MM"
@@ -54,6 +56,7 @@ entries:
     distance_mi: number     # optional
     pace_min_per_mi: number # optional
     notes: string            # optional
+    tags: [string]           # lowercase-hyphenated, e.g. the slugified activity name
 ```
 
 **Check-ins** (`data/checkins/YYYY-MM-DD.md`)
@@ -66,8 +69,9 @@ entries:
     notes: string            # optional
 ```
 
-**Goals** (`data/goals/targets.md`) — a **singleton**, not a log. Overwritten in place, never appended to.
+**Goals** (`data/goals/YYYY-MM-DD.md`) — one file per *change*, not per day. A goals change is a single event, so there's no `entries` array — just the full target snapshot. The most recent file by date is "current"; every earlier file is history, shown on the Goals page.
 ```yaml
+date: YYYY-MM-DD
 calories_target: number
 protein_g_target: number
 carbs_g_target: number
@@ -75,7 +79,6 @@ fat_g_target: number
 weight_goal_lb: number             # optional
 weight_goal_direction: lose | gain | maintain   # optional
 workout_frequency_target: number   # workouts/week
-updated: YYYY-MM-DD
 ```
 
 ## Unit conventions
@@ -98,6 +101,15 @@ Logging should not require exact slash-command syntax or a complete structured f
 - Ask at most **one** clarifying question for a missing required field (e.g. which meal, or exact weight lifted); fill in a reasonable default or estimate otherwise instead of demanding a complete form.
 - Prefer showing a quick preview of what will be written and letting the user correct it over interrogating them field-by-field.
 
+## Tagging
+
+Every food and exercise entry has a `tags` array (default `[]`). Each tag gets its own page at `/tags/<tag>` listing every entry — food or exercise — that carries it, most recent first, so "when did I last have X" or "show me every squat session" is a click, not a search. This is deliberately not a full-text search: tags are an exact-match index over things the user actually logs repeatedly, generated at log time rather than guessed from prose later.
+
+- **Exercise**: default the tag to the slugified `exercise`/`activity` name (e.g. `exercise: "Barbell Back Squat"` → `tags: [barbell-back-squat]`) — this is essentially free since the name is already being written. Add a second tag only if the user mentions a program/context worth tracking separately (e.g. `5k-training`).
+- **Food**: propose 1–3 tags for the core food item(s) in the description (e.g. "grilled salmon, roasted broccoli, quinoa" → `tags: [salmon, quinoa]` — pick what's identifiable and reusable, not every ingredient). Before inventing a new tag, check `data/food/` for a prior entry describing the same food and reuse its tag spelling — `grep -rl` for the food name across recent day files is enough, no need for anything fancier.
+- Tags are lowercase, hyphenated, no special characters — same slug rules as everywhere else in this file.
+- Show proposed tags in the log-food/log-exercise preview step so the user can edit them before confirming, same as any other field.
+
 ## Archive convention
 
 When the user shares a photo of a nutrition label, or a PDF food/diet plan (e.g. from a nutritionist), use the `archive-source` skill: transcribe it to markdown, save the raw file alongside the transcription under `data/archive/nutrition-labels/` or `data/archive/food-plans/`, and offer to feed the extracted data into `log-food` (for a label) or `set-goals` (for a plan). Check the archive before re-estimating macros for a food that's been logged from a label before — reuse the transcription instead of guessing again.
@@ -106,7 +118,7 @@ When the user shares a photo of a nutrition label, or a PDF food/diet plan (e.g.
 
 For the three day-file collections (`food`, `exercise`, `checkins`): `mkdir -p` the target subdirectory if needed; if today's file doesn't exist, create it with `date` and a one-item `entries` array; if it exists, read it, parse the frontmatter, push the new entry onto the existing `entries` array, and rewrite the whole file — never overwrite or drop prior entries for the day.
 
-For `goals/targets.md`: the opposite — always overwrite the full file in place with the complete, current set of targets.
+For `goals/`: never overwrite an existing snapshot from a prior day — each change to targets writes a **new** `data/goals/YYYY-MM-DD.md` with the complete, current set of targets (unchanged fields carried forward), so history accumulates automatically. Only same-day re-runs overwrite (today's file, if `set-goals` is invoked twice in one day).
 
 ## YAML gotchas
 

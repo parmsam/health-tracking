@@ -66,7 +66,7 @@ const DATA_DIR = process.env.HEALTH_DATA_DIR ?? 'data';
 
 Both directories share the same structure (`food/`, `exercise/`, `checkins/`, `goals/`), so nothing in the schema or the pages needs to know which one it's reading from.
 
-(One caveat if you ever build locally with `HEALTH_DATA_DIR` set to something different than usual: Astro's content-layer cache in `.astro/` can go stale across a data-source switch in the same checkout. Delete `.astro/` if a build seems to be showing the wrong dataset.)
+(One caveat if you ever build locally with `HEALTH_DATA_DIR` set to something different than usual, e.g. to preview the demo site: Astro's content-layer cache — `node_modules/.astro/data-store.json`, not the project-root `.astro/` — doesn't always invalidate when a collection goes from populated to empty across runs, so a later plain `npm run dev` can briefly show phantom demo entries. This never affects the actual deploy, since CI always starts from a clean `npm ci`/`node_modules` — it's purely a local-cache quirk. Delete `node_modules/.astro/` if a local build seems to be showing the wrong dataset.)
 
 ## Stack
 

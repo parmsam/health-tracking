@@ -23,7 +23,11 @@ Infer `breakfast | lunch | dinner | snack` from context (time of day, wording) i
 
 Per `CLAUDE.md`'s calorie/macro estimation guidance: estimate `calories`, `protein_g`, `carbs_g`, `fat_g` from general nutritional knowledge, rounded to the nearest 5 cal / 1 g (skip this if macros came from an archived label — use those numbers as-is).
 
-### 4. Preview and confirm
+### 4. Propose tags
+
+Per `CLAUDE.md`'s Tagging convention: propose 1–3 lowercase-hyphenated tags for the core food item(s) (not every ingredient). Check `data/food/` for a prior entry naming the same food and reuse its exact tag spelling instead of coining a near-duplicate.
+
+### 5. Preview and confirm
 
 Show a brief preview before writing:
 ```
@@ -31,10 +35,11 @@ Meal:        lunch
 Description: chicken burrito bowl (rice, black beans, salsa, chicken)
 Calories:    720
 Protein:     45g   Carbs: 80g   Fat: 22g
+Tags:        chicken, burrito-bowl
 ```
 Ask if anything needs correcting. Don't demand exact figures if the user doesn't have them — the estimate is the point.
 
-### 5. Write the entry
+### 6. Write the entry
 
 Today's date in `YYYY-MM-DD` format. Target file: `data/food/<YYYY-MM-DD>.md`.
 
@@ -52,12 +57,13 @@ Today's date in `YYYY-MM-DD` format. Target file: `data/food/<YYYY-MM-DD>.md`.
       carbs_g: <carbs_g>
       fat_g: <fat_g>
       source: <archived-file-path>   # omit line if not from an archive
+      tags: [<tag1>, <tag2>]
   ---
   ```
 - If the file already exists, read it, parse the frontmatter, **append** the new object to the existing `entries` array (don't touch prior entries), and rewrite the whole file.
 
 Use the current time in 24h `HH:MM` for `time` unless the user specifies otherwise.
 
-### 6. Confirm
+### 7. Confirm
 
 Briefly confirm what was logged and, if the user has set goals (`data/goals/targets.md` exists), optionally mention how the day's running total compares to `calories_target` so far.

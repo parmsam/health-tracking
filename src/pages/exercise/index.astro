@@ -2,9 +2,12 @@
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import ExerciseDayCard from '../../components/ExerciseDayCard.astro';
-import { sortByDateDesc } from '../../lib/aggregate';
+import TagPill from '../../components/TagPill.astro';
+import { sortByDateDesc, flattenByDate, allTags } from '../../lib/aggregate';
+import { withBase } from '../../lib/url';
 
 const days = sortByDateDesc(await getCollection('exercise'));
+const tags = allTags([flattenByDate(days)]);
 ---
 
 <Base title="Exercise">
@@ -12,6 +15,12 @@ const days = sortByDateDesc(await getCollection('exercise'));
     <h1 class="text-2xl font-bold text-stone-900 dark:text-stone-100 mb-1">Exercise</h1>
     <p class="text-stone-400 text-sm">Daily workout log, most recent first.</p>
   </div>
+
+  {tags.length > 0 && (
+    <div class="flex flex-wrap gap-1.5 mb-8">
+      {tags.map(tag => <TagPill tag={tag} href={withBase(`tags/${tag}`)} />)}
+    </div>
+  )}
 
   {days.length === 0 ? (
     <p class="text-sm text-stone-400 dark:text-stone-500">

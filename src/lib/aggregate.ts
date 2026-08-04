@@ -1,6 +1,7 @@
 import type { CollectionEntry } from 'astro:content';
 
-type FoodEntry = CollectionEntry<'food'>['data']['entries'][number];
+export type FoodEntry = CollectionEntry<'food'>['data']['entries'][number];
+export type ExerciseEntry = CollectionEntry<'exercise'>['data']['entries'][number];
 type CheckinEntry = CollectionEntry<'checkins'>['data']['entries'][number];
 
 export function dailyFoodTotals(entries: FoodEntry[]) {
@@ -68,4 +69,22 @@ export function weightTrend(
         .map(e => ({ date: day.data.date, weight_lb: e.weight_lb }))
     )
     .reverse(); // chronological order for charting
+}
+
+// Flatten day-files into individual entries paired with their day's date —
+// the shape /tags/[tag] needs to filter across every logged occurrence.
+export function flattenByDate<TDay extends { data: { date: Date; entries: unknown[] } }>(
+  days: TDay[]
+): { date: Date; entry: TDay['data']['entries'][number] }[] {
+  return days.flatMap(day => day.data.entries.map(entry => ({ date: day.data.date, entry })));
+}
+
+export function allTags(flatEntries: { entry: { tags: string[] } }[][]): string[] {
+  const set = new Set<string>();
+  for (const list of flatEntries) {
+    for (const { entry } of list) {
+      for (const tag of entry.tags) set.add(tag);
+    }
+  }
+  return Array.from(set).sort();
 }

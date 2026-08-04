@@ -15,6 +15,7 @@ const foodEntry = z.object({
   carbs_g: z.number(),
   fat_g: z.number(),
   source: z.string().optional(), // path to an archived nutrition-label transcription, if any
+  tags: z.array(z.string()).default([]), // lowercase-hyphenated, e.g. the core food item(s) — powers /tags/<tag>
 });
 
 const food = defineCollection({
@@ -37,6 +38,7 @@ const exerciseEntry = z.discriminatedUnion('type', [
     exercise: z.string(),
     sets: z.array(strengthSet),
     notes: z.string().optional(),
+    tags: z.array(z.string()).default([]), // e.g. the slugified exercise name, plus any program tags
   }),
   z.object({
     type: z.literal('cardio'),
@@ -46,6 +48,7 @@ const exerciseEntry = z.discriminatedUnion('type', [
     distance_mi: z.number().optional(),
     pace_min_per_mi: z.number().optional(),
     notes: z.string().optional(),
+    tags: z.array(z.string()).default([]), // e.g. the slugified activity name, plus any program tags
   }),
 ]);
 
@@ -72,11 +75,14 @@ const checkins = defineCollection({
   }),
 });
 
-// Singleton — one file (targets.md), loaded as a one-entry collection.
-// Access with: const targets = await getEntry('goals', 'targets');
+// One file per change (data/goals/YYYY-MM-DD.md), not per day like the logs above —
+// a goals change is a single event, so there's no entries array. The most recent
+// file by date is "current"; older files are history. Never overwritten in place
+// (that's how the history exists at all) — see the set-goals skill.
 const goals = defineCollection({
   loader: glob({ pattern: '*.md', base: `${DATA_DIR}/goals` }),
   schema: z.object({
+    date: z.coerce.date(),
     calories_target: z.number(),
     protein_g_target: z.number(),
     carbs_g_target: z.number(),
@@ -84,7 +90,6 @@ const goals = defineCollection({
     weight_goal_lb: z.number().optional(),
     weight_goal_direction: z.enum(['lose', 'gain', 'maintain']).optional(),
     workout_frequency_target: z.number(),
-    updated: z.coerce.date(),
   }),
 });
 

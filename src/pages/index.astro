@@ -1,5 +1,5 @@
 ---
-import { getCollection, getEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import Meter from '../components/Meter.astro';
 import StatTile from '../components/StatTile.astro';
@@ -10,12 +10,13 @@ import {
   todayId,
   thisWeekExerciseSessionCount,
   weightTrend,
+  sortByDateDesc,
 } from '../lib/aggregate';
 
 const foodDays = await getCollection('food');
 const exerciseDays = await getCollection('exercise');
 const checkinDays = await getCollection('checkins');
-const goals = await getEntry('goals', 'targets');
+const goals = sortByDateDesc(await getCollection('goals'))[0];
 
 const today = todayId();
 const todayFood = findDay(foodDays, today);

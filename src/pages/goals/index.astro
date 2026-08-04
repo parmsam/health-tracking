@@ -1,0 +1,102 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { sortByDateDesc } from '../../lib/aggregate';
+
+const snapshots = sortByDateDesc(await getCollection('goals'));
+const current = snapshots[0];
+const history = snapshots.slice(1);
+
+const dateFmt = (d: Date) =>
+  d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+---
+
+<Base title="Goals">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-stone-900 dark:text-stone-100 mb-1">Goals</h1>
+    <p class="text-stone-400 text-sm">Current targets, and how they've changed over time.</p>
+  </div>
+
+  {!current ? (
+    <p class="text-sm text-stone-400 dark:text-stone-500">
+      No goals set yet. Run
+      <code class="px-1 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300">/set-goals</code>
+      in Claude Code to define your targets.
+    </p>
+  ) : (
+    <>
+      <div class="mb-10 rounded-lg border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-medium text-stone-900 dark:text-stone-100">Current targets</h2>
+          <span class="text-xs text-stone-400 dark:text-stone-500">last updated {dateFmt(current.data.date)}</span>
+        </div>
+        <dl class="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4 text-sm">
+          <div>
+            <dt class="text-stone-400 dark:text-stone-500 text-xs mb-0.5">Calories</dt>
+            <dd class="text-stone-900 dark:text-stone-100 tabular-nums">{current.data.calories_target.toLocaleString('en-US')} cal</dd>
+          </div>
+          <div>
+            <dt class="text-stone-400 dark:text-stone-500 text-xs mb-0.5">Protein</dt>
+            <dd class="text-stone-900 dark:text-stone-100 tabular-nums">{current.data.protein_g_target} g</dd>
+          </div>
+          <div>
+            <dt class="text-stone-400 dark:text-stone-500 text-xs mb-0.5">Carbs</dt>
+            <dd class="text-stone-900 dark:text-stone-100 tabular-nums">{current.data.carbs_g_target} g</dd>
+          </div>
+          <div>
+            <dt class="text-stone-400 dark:text-stone-500 text-xs mb-0.5">Fat</dt>
+            <dd class="text-stone-900 dark:text-stone-100 tabular-nums">{current.data.fat_g_target} g</dd>
+          </div>
+          <div>
+            <dt class="text-stone-400 dark:text-stone-500 text-xs mb-0.5">Workout frequency</dt>
+            <dd class="text-stone-900 dark:text-stone-100 tabular-nums">{current.data.workout_frequency_target}/week</dd>
+          </div>
+          {current.data.weight_goal_lb !== undefined && (
+            <div>
+              <dt class="text-stone-400 dark:text-stone-500 text-xs mb-0.5">Weight goal</dt>
+              <dd class="text-stone-900 dark:text-stone-100 tabular-nums">
+                {current.data.weight_goal_lb} lb{current.data.weight_goal_direction ? ` (${current.data.weight_goal_direction})` : ''}
+              </dd>
+            </div>
+          )}
+        </dl>
+      </div>
+
+      {history.length > 0 && (
+        <section>
+          <h2 class="text-xs font-semibold text-stone-400 uppercase tracking-widest mb-4">History</h2>
+          <div class="rounded-lg border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-stone-100 dark:border-stone-800 text-left text-xs text-stone-400 dark:text-stone-500">
+                  <th class="px-4 py-2 font-medium">Date</th>
+                  <th class="px-4 py-2 font-medium">Calories</th>
+                  <th class="px-4 py-2 font-medium">Protein</th>
+                  <th class="px-4 py-2 font-medium">Carbs</th>
+                  <th class="px-4 py-2 font-medium">Fat</th>
+                  <th class="px-4 py-2 font-medium">Workouts/wk</th>
+                  <th class="px-4 py-2 font-medium">Weight goal</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-stone-100 dark:divide-stone-800">
+                {history.map(s => (
+                  <tr>
+                    <td class="px-4 py-2 tabular-nums text-stone-500 dark:text-stone-400">{dateFmt(s.data.date)}</td>
+                    <td class="px-4 py-2 tabular-nums text-stone-700 dark:text-stone-300">{s.data.calories_target}</td>
+                    <td class="px-4 py-2 tabular-nums text-stone-700 dark:text-stone-300">{s.data.protein_g_target}g</td>
+                    <td class="px-4 py-2 tabular-nums text-stone-700 dark:text-stone-300">{s.data.carbs_g_target}g</td>
+                    <td class="px-4 py-2 tabular-nums text-stone-700 dark:text-stone-300">{s.data.fat_g_target}g</td>
+                    <td class="px-4 py-2 tabular-nums text-stone-700 dark:text-stone-300">{s.data.workout_frequency_target}</td>
+                    <td class="px-4 py-2 tabular-nums text-stone-700 dark:text-stone-300">
+                      {s.data.weight_goal_lb !== undefined ? `${s.data.weight_goal_lb} lb` : '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+    </>
+  )}
+</Base>

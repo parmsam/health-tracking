@@ -1,6 +1,8 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import { dailyFoodTotals, sortEntriesByTime } from '../lib/aggregate';
+import { withBase } from '../lib/url';
+import TagPill from './TagPill.astro';
 
 interface Props {
   day: CollectionEntry<'food'>;
@@ -40,6 +42,11 @@ const mealLabel: Record<string, string> = {
             {mealLabel[e.meal]}
           </span>
           <p class="text-sm text-stone-700 dark:text-stone-300">{e.description}</p>
+          {e.tags.length > 0 && (
+            <div class="flex flex-wrap gap-1 mt-1.5">
+              {e.tags.map(tag => <TagPill tag={tag} href={withBase(`tags/${tag}`)} />)}
+            </div>
+          )}
         </div>
         <span class="flex-shrink-0 text-xs text-stone-400 dark:text-stone-500 tabular-nums pt-0.5">{e.calories} cal</span>
       </div>

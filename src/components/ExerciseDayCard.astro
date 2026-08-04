@@ -1,6 +1,8 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import { sortEntriesByTime } from '../lib/aggregate';
+import { withBase } from '../lib/url';
+import TagPill from './TagPill.astro';
 
 interface Props {
   day: CollectionEntry<'exercise'>;
@@ -52,6 +54,11 @@ const dateStr = day.data.date.toLocaleDateString('en-US', {
             </>
           )}
           {e.notes && <p class="text-xs text-stone-400 dark:text-stone-500 mt-1 italic">{e.notes}</p>}
+          {e.tags.length > 0 && (
+            <div class="flex flex-wrap gap-1 mt-1.5">
+              {e.tags.map(tag => <TagPill tag={tag} href={withBase(`tags/${tag}`)} />)}
+            </div>
+          )}
         </div>
       </div>
     ))}
