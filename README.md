@@ -55,6 +55,19 @@ npm run dev:stop      # stops it
 
 This runs `astro dev` (not a static build) so entries logged via Claude Code show up on refresh without a rebuild. It writes a PID file (`.server.pid`) and log (`.server.log`) in the project root — both gitignored — so `dev:stop` can reliably kill the right process. `dev:start` refuses to start a second instance if one's already running.
 
+## Accessing it when you're away from home
+
+`dev:start` binds to your LAN, which only helps on the same network. To reach it securely from outside — no port forwarding, no exposing anything to the public internet — put it behind a private mesh VPN:
+
+**[Tailscale](https://tailscale.com)** (recommended, ~5 min setup):
+1. Install the Tailscale app on the machine running `npm run dev:start` and sign in.
+2. Install Tailscale on your phone/laptop and sign into the same account.
+3. Visit `http://<tailscale-machine-name>:4321` (or whatever `PORT` you used) from anywhere — traffic goes over an encrypted WireGuard connection between your own devices, nothing is publicly reachable, and only devices signed into your tailnet can connect. No router config, no dynamic DNS, no certs to manage.
+
+**Alternative — [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) + Cloudflare Access**: gives you a real HTTPS URL you could open from any browser (not just devices with an app installed), gated behind an email/SSO login challenge. More setup, and now depends on Cloudflare's availability — worth it only if "open from literally any browser" matters more than "zero extra install."
+
+Skip plain port-forwarding + a public URL — there's no auth layer in front of the dashboard itself, so anyone who found the address could see everything.
+
 ## Skills
 
 - **`/log-food <description>`** — logs a meal; Claude estimates calories/protein/carbs/fat from what you describe.
