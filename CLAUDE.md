@@ -132,6 +132,8 @@ For the three day-file collections (`food`, `exercise`, `checkins`): `mkdir -p` 
 
 For `goals/`: never overwrite an existing snapshot from a prior day — each change to targets writes a **new** `data/goals/YYYY-MM-DD.md` with the complete, current set of targets (unchanged fields carried forward), so history accumulates automatically. Only same-day re-runs overwrite (today's file, if `set-goals` is invoked twice in one day).
 
+**Restart the dev server after writing the first-ever file into an otherwise-empty collection directory.** Astro's dev-mode watcher only reacts to changes on files it already knows about — if `data/food/`, `data/checkins/`, or `data/goals/` had zero files when the server started, a newly created file in it won't show up on refresh (the page keeps reporting the collection as empty) until you run `npm run dev:stop && npm run dev:start`. Appends to a day file that already existed hot-reload fine and need no restart — this only bites the very first write into a directory.
+
 ## YAML gotchas
 
 - **Values with colons**: if a `description`/`notes` value contains a colon (e.g. `"pasta: garlic, olive oil"`), wrap the whole value in double quotes, or js-yaml will parse the colon as a mapping separator.

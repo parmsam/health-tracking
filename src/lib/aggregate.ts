@@ -64,9 +64,7 @@ export function thisWeekExerciseSessionCount(
   days: CollectionEntry<'exercise'>[],
   reference: Date = new Date()
 ): number {
-  return days
-    .filter(d => isWithinCurrentWeek(d.data.date, reference))
-    .reduce((count, d) => count + d.data.entries.length, 0);
+  return days.filter(d => isWithinCurrentWeek(d.data.date, reference)).length;
 }
 
 export function thisWeekExerciseCountByTag(
@@ -76,7 +74,8 @@ export function thisWeekExerciseCountByTag(
 ): number {
   return days
     .filter(d => isWithinCurrentWeek(d.data.date, reference))
-    .reduce((count, d) => count + d.data.entries.filter(e => e.tags.includes(category)).length, 0);
+    .filter(d => d.data.entries.some(e => e.tags.includes(category)))
+    .length;
 }
 
 export function weightTrend(
