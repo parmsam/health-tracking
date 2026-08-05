@@ -20,7 +20,7 @@ If unclear from context, ask which.
 
 ### 2. Read and transcribe
 
-Use the Read tool on the image/PDF directly (it supports both). Transcribe faithfully:
+If the source is a URL rather than a local file, use the `fetch-content` skill first to get clean markdown, then transcribe from that. Otherwise use the Read tool on the local image/PDF directly (it supports both). Transcribe faithfully:
 
 **Nutrition label** → capture: product name, serving size, calories, protein_g, carbs_g, fat_g, and any other notable fields visible (fiber, sugar, sodium), plus the ingredient list if legible. Don't guess at anything not visible in the image — leave it out rather than inventing a number.
 
@@ -31,14 +31,15 @@ Use the Read tool on the image/PDF directly (it supports both). Transcribe faith
 Today's date in `YYYY-MM-DD`, plus a short lowercase-hyphenated slug from the product/plan name (max ~5 words). Category determines the subdirectory: `data/archive/nutrition-labels/` or `data/archive/food-plans/`.
 
 - `mkdir -p` the target subdirectory if needed.
-- Copy the original file alongside the transcription, same basename, original extension: `<YYYY-MM-DD>-<slug>.<ext>`.
-- Write the transcription: `<YYYY-MM-DD>-<slug>.md`, with a small YAML frontmatter header (`date`, `slug`, `source_file`) followed by the transcribed content as markdown body text. For a nutrition label, include the macro fields in frontmatter too so they're easy to parse back out later:
+- For a local file: copy the original alongside the transcription, same basename, original extension: `<YYYY-MM-DD>-<slug>.<ext>`. For a URL source, there's no original file to copy — skip this and record the URL in frontmatter instead (see `source_url` below).
+- Write the transcription: `<YYYY-MM-DD>-<slug>.md`, with a small YAML frontmatter header (`date`, `slug`, `source_file` or `source_url`) followed by the transcribed content as markdown body text. For a nutrition label, include the macro fields in frontmatter too so they're easy to parse back out later:
 
 ```markdown
 ---
 date: <YYYY-MM-DD>
 slug: <slug>
-source_file: <YYYY-MM-DD>-<slug>.<ext>
+source_file: <YYYY-MM-DD>-<slug>.<ext>   # local file case
+source_url: <url>                          # URL case — use instead of source_file
 serving_size: <string, if visible>
 calories: <number, if visible>
 protein_g: <number, if visible>

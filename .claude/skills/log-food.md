@@ -33,16 +33,22 @@ Read the most recent file in `data/goals/` (highest date). If it has a non-empty
 
 ### 6. Preview and confirm
 
-Show a brief preview before writing:
+Show a brief preview before writing. If the entry covers more than one distinct food item, break the estimate down per item (as a small table or list) rather than only showing the combined total — this makes it easy to spot which item is driving the number and to correct just one piece of it:
 ```
-Meal:        lunch
-Description: chicken burrito bowl (rice, black beans, salsa, chicken)
-Calories:    720
-Protein:     45g   Carbs: 80g   Fat: 22g
-Tags:        chicken, burrito-bowl
-Servings:    vegetables 0.5   (omit this line if no serving_targets are set, or none apply)
+Meal: lunch — chicken burrito bowl
+
+| Item              | Cal | Protein | Carbs | Fat |
+|-------------------|-----|---------|-------|-----|
+| Chicken (grilled)  | 280 | 35g     | 0g    | 14g |
+| Rice (1 cup)       | 205 | 4g      | 45g   | 0g  |
+| Black beans (½ cup)| 115 | 8g      | 20g   | 1g  |
+| Salsa              | 20  | 1g      | 4g    | 0g  |
+| **Total**          | **720** | **48g** | **69g** | **15g** |
+
+Tags:     chicken, burrito-bowl
+Servings: vegetables 0.5   (omit this line if no serving_targets are set, or none apply)
 ```
-Ask if anything needs correcting. Don't demand exact figures if the user doesn't have them — the estimate is the point.
+A single-item entry (e.g. one archived-label food) doesn't need a table — the flat `Calories: / Protein: / Carbs: / Fat:` format is enough. Ask if anything needs correcting. Don't demand exact figures if the user doesn't have them — the estimate is the point.
 
 ### 7. Write the entry
 
