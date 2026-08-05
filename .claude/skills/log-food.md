@@ -70,6 +70,7 @@ Today's date in `YYYY-MM-DD` format. Target file: `data/food/<YYYY-MM-DD>.md`.
       source: <archived-file-path>   # omit line if not from an archive
       tags: [<tag1>, <tag2>]
       servings: [{ category: <category>, amount: <number> }]   # omit line if none apply
+      items: [{ name: <string>, calories: <number>, protein_g: <number>, carbs_g: <number>, fat_g: <number> }]   # omit line for single-item entries; otherwise one object per row of the preview table from step 6, same numbers
   ---
   ```
 - If the file already exists, read it, parse the frontmatter, **append** the new object to the existing `entries` array (don't touch prior entries), and rewrite the whole file.

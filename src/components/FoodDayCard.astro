@@ -46,6 +46,16 @@ const mealLabel: Record<string, string> = {
             {mealLabel[e.meal]}
           </span>
           <p class="text-sm text-stone-700 dark:text-stone-300">{e.description}</p>
+          {e.items && e.items.length > 1 && (
+            <ul class="mt-1 space-y-0.5">
+              {e.items.map(item => (
+                <li class="flex items-baseline justify-between gap-3 text-xs text-stone-400 dark:text-stone-500">
+                  <span class="truncate">{item.name}</span>
+                  <span class="flex-shrink-0 tabular-nums">{item.calories} cal</span>
+                </li>
+              ))}
+            </ul>
+          )}
           {e.tags.length > 0 && (
             <div class="flex flex-wrap gap-1 mt-1.5">
               {e.tags.map(tag => <TagPill tag={tag} href={withBase(`tags/${tag}`)} />)}

@@ -6,6 +6,14 @@ import { glob } from 'astro/loaders';
 // GitHub Pages deploy only ever builds from committed synthetic sample data.
 const DATA_DIR = process.env.HEALTH_DATA_DIR ?? 'data';
 
+const foodItem = z.object({
+  name: z.string(),
+  calories: z.number(),
+  protein_g: z.number(),
+  carbs_g: z.number(),
+  fat_g: z.number(),
+});
+
 const foodEntry = z.object({
   time: z.string(), // "HH:MM", 24h
   meal: z.enum(['breakfast', 'lunch', 'dinner', 'snack']),
@@ -17,6 +25,7 @@ const foodEntry = z.object({
   source: z.string().optional(), // path to an archived nutrition-label transcription, if any
   tags: z.array(z.string()).default([]), // lowercase-hyphenated, e.g. the core food item(s) — powers /tags/<tag>
   servings: z.array(z.object({ category: z.string(), amount: z.number() })).default([]), // e.g. [{category: "vegetables", amount: 1}] — only for categories in current goals' serving_targets
+  items: z.array(foodItem).optional(), // per-item calorie/macro breakdown when the entry covers more than one distinct food; the fields above remain the source of truth for the entry's totals
 });
 
 const food = defineCollection({

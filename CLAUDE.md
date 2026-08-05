@@ -36,6 +36,7 @@ entries:
     source: string    # optional — path to an archived nutrition-label transcription, if this came from one
     tags: [string]     # lowercase-hyphenated, e.g. the core food item(s) — see Tagging below
     servings: [{ category: string, amount: number }]   # e.g. [{category: vegetables, amount: 1}] — see Category goals below
+    items: [{ name: string, calories: number, protein_g: number, carbs_g: number, fat_g: number }]   # optional — per-item breakdown when the entry covers more than one distinct food; calories/protein_g/carbs_g/fat_g above remain the entry's totals and source of truth
 ```
 
 **Exercise** (`data/exercise/YYYY-MM-DD.md`)
